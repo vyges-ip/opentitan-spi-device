@@ -5,6 +5,29 @@
   "source": {
     "type": "git",
     "url": "https://github.com/lowRISC/opentitan",
-    "commit": "304378684dfcf5be73bbd14faffa71790793d8c6"
-  }
+    "commit": "304378684dfcf5be73bbd14faffa71790793d8c6",
+    "rtl_path": "rtl",
+    "rtl_files": [
+      "rtl/spi_cmdparse.sv",
+      "rtl/spi_device.sv",
+      "rtl/spi_device_pkg.sv",
+      "rtl/spi_device_reg_pkg.sv",
+      "rtl/spi_device_reg_top.sv",
+      "rtl/spi_p2s.sv",
+      "rtl/spi_passthrough.sv",
+      "rtl/spi_readcmd.sv",
+      "rtl/spi_s2p.sv",
+      "rtl/spi_tpm.sv",
+      "rtl/spid_addr_4b.sv",
+      "rtl/spid_csb_sync.sv",
+      "rtl/spid_dpram.sv",
+      "rtl/spid_fifo2sram_adapter.sv",
+      "rtl/spid_jedec.sv",
+      "rtl/spid_readbuffer.sv",
+      "rtl/spid_readsram.sv",
+      "rtl/spid_status.sv",
+      "rtl/spid_upload.sv"
+    ]
+  },
+  "updated": "2026-02-19T06:03:45Z"
 }
