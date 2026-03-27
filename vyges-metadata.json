@@ -3,36 +3,250 @@
   "x-version": "1.0.0",
   "name": "opentitan-spi-device",
   "version": "0.1.0",
-  "description": "SPI device (slave) controller supporting Flash mode and TPM mode with 1024-byte segmented SRAM (512B read buffer, 256B mailbox, 64B SFDP, 16B TPM FIFO), passthrough mode for flash access, 8 interrupt sources, and DFT support. TileLink-UL slave interface. Extracted from OpenTitan (lowRISC).",
+  "description": "A silicon-proven SPI device controller supporting TL-UL protocol for register access, with features like passthrough mode, integrity checks, and configurable SRAM buffers.",
   "license": "Apache-2.0",
   "maturity": "production",
-  "target": ["asic", "fpga"],
-  "design_type": ["digital"],
-  "created": "2026-02-19T06:12:02Z",
-  "updated": "2026-03-27T19:25:49Z",
-  "source": {"type": "git", "url": "https://github.com/lowRISC/opentitan", "commit": "304378684dfcf5be73bbd14faffa71790793d8c6", "ip_path": "hw/ip/spi_device", "private": false, "rtl_path": "rtl"},
-  "maintainers": [{"name": "Vyges", "email": "team@vyges.com", "github": "vyges"}],
+  "target": [
+    "asic",
+    "fpga"
+  ],
+  "design_type": [
+    "digital"
+  ],
+  "created": "2026-03-27T23:05:57Z",
+  "updated": "2026-03-27T23:05:57Z",
+  "source": {
+    "type": "git",
+    "url": "https://github.com/lowRISC/opentitan",
+    "commit": "7fbd85829ec6354ef6497df69536cefe862c1f5a",
+    "ip_path": "hw/ip/spi_device",
+    "private": false,
+    "containsEncryptedPayload": false,
+    "indexing": true
+  },
+  "maintainers": [
+    {
+      "name": "Vyges",
+      "email": "team@vyges.com",
+      "url": "https://vyges.com",
+      "github": "vyges"
+    }
+  ],
   "interfaces": [
-    {"type": "bus", "direction": "slave", "protocol": "TL-UL", "port": "tl", "width": 32, "description": "TileLink-UL slave. 73 registers."},
-    {"type": "serial", "direction": "slave", "protocol": "SPI", "port": "cio", "description": "SPI slave: SCK input, CSB input, 4-bit SD (Quad), optional TPM CSB.", "signals": [{"name": "cio_sck_i", "direction": "input", "type": "clock", "width": 1}, {"name": "cio_csb_i", "direction": "input", "type": "control", "width": 1}, {"name": "cio_sd_o", "direction": "output", "type": "data", "width": 4}, {"name": "cio_sd_en_o", "direction": "output", "type": "control", "width": 4}, {"name": "cio_sd_i", "direction": "input", "type": "data", "width": 4}, {"name": "cio_tpm_csb_i", "direction": "input", "type": "control", "width": 1, "description": "TPM chip select"}]},
-    {"type": "interrupt", "direction": "output", "protocol": "level", "port": "intr", "width": 8, "description": "8 interrupts: Flash mode (upload cmd/payload, readbuf watermark/flip) + TPM mode (header, rdfifo cmd_end/drop)"},
-    {"type": "passthrough", "direction": "output", "protocol": "SPI passthrough", "description": "Passthrough to downstream SPI flash"}
+    {
+      "type": "bus",
+      "direction": "slave",
+      "protocol": "TL-UL",
+      "port": "tl_i",
+      "width": 72,
+      "description": "TL-UL host-to-device interface for register access."
+    },
+    {
+      "type": "bus",
+      "direction": "master",
+      "protocol": "TL-UL",
+      "port": "tl_o",
+      "width": 72,
+      "description": "TL-UL device-to-host interface for register responses."
+    },
+    {
+      "type": "clock",
+      "direction": "input",
+      "protocol": "standard",
+      "port": "clk_i",
+      "width": 1,
+      "description": "Clock input for the SPI device."
+    },
+    {
+      "type": "reset",
+      "direction": "input",
+      "protocol": "active-low",
+      "port": "rst_ni",
+      "width": 1,
+      "description": "Active-low reset signal."
+    },
+    {
+      "type": "bus",
+      "direction": "master",
+      "protocol": "TL-UL",
+      "port": "tl_win_o",
+      "width": 72,
+      "description": "TL-UL master interface for windowed access."
+    },
+    {
+      "type": "bus",
+      "direction": "slave",
+      "protocol": "TL-UL",
+      "port": "tl_win_i",
+      "width": 72,
+      "description": "TL-UL slave interface for windowed access."
+    },
+    {
+      "type": "custom",
+      "direction": "output",
+      "protocol": "custom",
+      "port": "reg2hw",
+      "width": 512,
+      "description": "Register-to-hardware interface for write operations."
+    },
+    {
+      "type": "custom",
+      "direction": "input",
+      "protocol": "custom",
+      "port": "hw2reg",
+      "width": 512,
+      "description": "Hardware-to-register interface for read operations."
+    },
+    {
+      "type": "custom",
+      "direction": "input",
+      "protocol": "custom",
+      "port": "racl_policies_i",
+      "width": 73,
+      "description": "RACL policy vector input."
+    },
+    {
+      "type": "custom",
+      "direction": "output",
+      "protocol": "custom",
+      "port": "racl_error_o",
+      "width": 1,
+      "description": "RACL error log output."
+    },
+    {
+      "type": "custom",
+      "direction": "output",
+      "protocol": "custom",
+      "port": "intg_err_o",
+      "width": 1,
+      "description": "Integrity error output signal."
+    }
   ],
   "parameters": [
-    {"name": "SramDepth", "type": "int", "default": 1024, "description": "Total SRAM size in bytes"},
-    {"name": "SramReadBufferDepth", "type": "int", "default": 512, "description": "Read buffer size (bytes)"},
-    {"name": "SramMailboxDepth", "type": "int", "default": 256, "description": "Mailbox/TPM buffer (bytes)"},
-    {"name": "SramSfdpDepth", "type": "int", "default": 64, "description": "SFDP table size (bytes)"}
+    {
+      "name": "EnableRacl",
+      "type": "bit",
+      "default": 0,
+      "description": "Enable RACL functionality."
+    },
+    {
+      "name": "RaclErrorRsp",
+      "type": "bit",
+      "default": 1,
+      "description": "Enable RACL error response."
+    },
+    {
+      "name": "RaclPolicySelVec",
+      "type": "array",
+      "default": "{spi_device_reg_pkg::NumRegs{0}}",
+      "description": "RACL policy selection vector."
+    },
+    {
+      "name": "AW",
+      "type": "int",
+      "default": 13,
+      "description": "Address width for the register interface."
+    },
+    {
+      "name": "DW",
+      "type": "int",
+      "default": 32,
+      "description": "Data width for the register interface."
+    },
+    {
+      "name": "DBW",
+      "type": "int",
+      "default": 4,
+      "description": "Byte width for the register interface."
+    }
   ],
-  "performance": {"sram": "1024B segmented: 512B read + 256B mailbox + 64B SFDP + 16B TPM + 848B egress + 112B ingress"},
-  "architecture": {"type": "peripheral", "features": ["Dual-mode: Flash mode + TPM mode", "1024-byte segmented SRAM with configurable regions", "SPI passthrough mode for downstream flash", "8 interrupt sources (mode-specific)", "Dual-port RAM interface (1R1W)", "MBIST and scan DFT support", "73 configuration registers", "Bus integrity alert"]},
-  "dependencies": [{"name": "opentitan-prim", "type": "library"}, {"name": "opentitan-tlul", "type": "bus"}],
-  "documentation": {"upstream": "https://opentitan.org/book/hw/ip/spi_device/"},
-  "artifacts": {"total_rtl_lines": 32153},
-  "categories": {"primary": "peripheral", "secondary": ["communication", "serial", "security"], "tags": ["spi-device", "spi-slave", "flash", "tpm", "passthrough", "quad-spi", "tl-ul", "opentitan"]},
-  "trust": {"verification_level": "silicon_proven", "tapeout_count": 3, "fpga_validated": false, "maintained": true, "last_activity": "2026-03-27"},
-  "asic": {"flavor": "digital", "technology": ["sky130A"]},
-  "fpga": {"toolchain": ["Vivado", "Yosys"]},
-  "keywords": ["spi-device", "spi-slave", "flash", "tpm", "passthrough", "opentitan", "tl-ul"],
-  "meta": {"template": {"generator": "manual (gold-standard pass 2026-03-27)"}, "schema": {"version": "1.0.0"}}
+  "performance": {},
+  "architecture": {
+    "type": "peripheral",
+    "features": [
+      "SPI device controller with TL-UL interface",
+      "Passthrough mode for external SPI devices",
+      "Configurable SRAM buffers for data storage",
+      "Integrity check and error reporting",
+      "Support for RACL policies"
+    ]
+  },
+  "asic": {
+    "flavor": "digital",
+    "technology": [
+      "sky130A"
+    ]
+  },
+  "fpga": {
+    "toolchain": [
+      "Vivado"
+    ],
+    "devices": [
+      "Artix-7"
+    ]
+  },
+  "dependencies": [
+    {
+      "name": "tlul_pkg",
+      "type": "library",
+      "description": "TileLink Ultra-Lite protocol package."
+    },
+    {
+      "name": "spi_device_reg_pkg",
+      "type": "library",
+      "description": "SPI device register package."
+    },
+    {
+      "name": "top_racl_pkg",
+      "type": "library",
+      "description": "RACL policy package."
+    },
+    {
+      "name": "prim_assert",
+      "type": "library",
+      "description": "Primitive assertion library."
+    }
+  ],
+  "test": {
+    "testbenches": [],
+    "status": "upstream_passing",
+    "coverage": "functional"
+  },
+  "documentation": {
+    "upstream": "https://github.com/lowRISC/opentitan"
+  },
+  "artifacts": {
+    "total_rtl_lines": 32153
+  },
+  "categories": [
+    {
+      "main_category": "Interface Controllers",
+      "sub_category": "Serial Interfaces"
+    }
+  ],
+  "keywords": [
+    "SPI",
+    "TL-UL",
+    "RACL",
+    "OpenTitan",
+    "Peripheral"
+  ],
+  "trust": {
+    "verification_level": "silicon_proven",
+    "tapeout_count": 0,
+    "fpga_validated": false,
+    "formal_verified": false,
+    "maintained": true,
+    "last_activity": "2026-03-27T23:05:57Z"
+  },
+  "meta": {
+    "template": {
+      "generator": "github-models-ai",
+      "template_version": "1.0.0",
+      "generated_at": "2026-03-27T23:05:57Z"
+    },
+    "schema": {
+      "version": "1.0.0"
+    }
+  }
 }
