@@ -14,7 +14,7 @@
     "digital"
   ],
   "created": "2026-03-27T23:05:57Z",
-  "updated": "2026-03-27T23:05:57Z",
+  "updated": "2026-04-02T04:30:00Z",
   "source": {
     "type": "git",
     "url": "https://github.com/lowRISC/opentitan",
@@ -248,5 +248,58 @@
     "schema": {
       "version": "1.0.0"
     }
-  }
+  },
+  "rtl_files": [
+    "rtl/spi_cmdparse.sv",
+    "rtl/spi_device.sv",
+    "rtl/spi_device_pkg.sv",
+    "rtl/spi_device_reg_pkg.sv",
+    "rtl/spi_device_reg_top.sv",
+    "rtl/spi_p2s.sv",
+    "rtl/spi_passthrough.sv",
+    "rtl/spi_readcmd.sv",
+    "rtl/spi_s2p.sv",
+    "rtl/spi_tpm.sv",
+    "rtl/spid_addr_4b.sv",
+    "rtl/spid_csb_sync.sv",
+    "rtl/spid_dpram.sv",
+    "rtl/spid_fifo2sram_adapter.sv",
+    "rtl/spid_jedec.sv",
+    "rtl/spid_readbuffer.sv",
+    "rtl/spid_readsram.sv",
+    "rtl/spid_status.sv",
+    "rtl/spid_upload.sv",
+    "rtl/spi_cmdparse.sv",
+    "rtl/spi_device.sv",
+    "rtl/spi_device_pkg.sv",
+    "rtl/spi_device_reg_pkg.sv",
+    "rtl/spi_device_reg_top.sv",
+    "rtl/spi_p2s.sv",
+    "rtl/spi_passthrough.sv",
+    "rtl/spi_readcmd.sv",
+    "rtl/spi_s2p.sv",
+    "rtl/spi_tpm.sv",
+    "rtl/spid_addr_4b.sv",
+    "rtl/spid_csb_sync.sv",
+    "rtl/spid_dpram.sv",
+    "rtl/spid_fifo2sram_adapter.sv",
+    "rtl/spid_jedec.sv",
+    "rtl/spid_readbuffer.sv",
+    "rtl/spid_readsram.sv",
+    "rtl/spid_status.sv",
+    "rtl/spid_upload.sv"
+  ],
+  "rtl_quality": {
+    "module_prefixed": true,
+    "defines_prefixed": true,
+    "header_guards": false,
+    "one_module_per_file": true,
+    "self_contained_includes": false,
+    "no_translate_pragmas": true,
+    "lint_clean": false,
+    "no_casex": true,
+    "width_clean": false,
+    "no_sv_keyword_conflicts": true
+  },
+  "defines": []
 }
